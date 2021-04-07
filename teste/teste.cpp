@@ -57,7 +57,7 @@ void imprimeVar(string temp){
 
 
 void getFileNames(){
-    string path  = "./pspd-2020.2/input";
+    string path  = "../somativa02/pspd-2020.2/input";
    
     for (const auto & file : directory_iterator(path)){
         string a =  file.path();  
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]){
         cout <<"Comando = " << comando2 << endl;
         
         // monta a string pro comando diff
-        char arg2[200] = "pspd-2020.2/output/";
+        char arg2[200] = "../somativa02/pspd-2020.2/output/";
         char diff[200] = "diff out ";
         char arquivoDiff[] = " > diff/0";
         if(k>9 && a=='0'){
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]){
         imprimeVar(name[j]);
 
         double real3=0,user3=0,system3=0;
-        for(int i=0;i<5;i++){
+        //for(int i=0;i<5;i++){
             system(comando2);
 
             // monta e executa a string do arquivo de diff
@@ -172,10 +172,10 @@ int main(int argc, char *argv[]){
             real3+=real2;
             user3+=user2;
             system3+=system2;
-        }
-        real3/=5;
-        user3/=5;
-        system3/=5;
+        //}
+        // real3/=5;
+        // user3/=5;
+        // system3/=5;
         cout << fixed << setprecision(2) << "real = " <<real3 <<" user = " << user3 <<" system = " <<  system3 <<"\n\n";
         myfile << real3 << "," << user3 <<"," << system3<< endl;
         j++;

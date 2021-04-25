@@ -94,7 +94,7 @@ int main(int argc, char *argv[]){
     getFileNames();
     //compila o arquivo de teste
     if(argc>1){
-        string compila="g++ -o prog -std=c++17 -O2 -static -Wall -W ";
+        string compila="g++ -o prog -pthread -std=c++17 -O2 -static -Wall -W ";
         string arquivo(argv[1]);
         compila+=arquivo;
         char compila2[compila.size() + 1];
@@ -147,13 +147,10 @@ int main(int argc, char *argv[]){
         imprimeVar(name[j]);
 
         double real3=0,user3=0,system3=0;
-        //for(int i=0;i<5;i++){
+       
             system(comando2);
-
-            // monta e executa a string do arquivo de diff
-            if(i==4){
-                system(diff);
-            }
+            system(diff);
+            
             
 
             string line;
@@ -161,21 +158,10 @@ int main(int argc, char *argv[]){
             string real,user,system,lixo;
             cin >> user >> system >> real;
         
-
-            double user2,real2,system2;
-            real2 = solve(real,'e');
-            user2 = solve(user,'u');
-            system2 = solve(system,'s');
-            // cout << fixed << setprecision(2) << "real = " <<real2 << "s ";
-            // cout <<"user = " << user2 << "s ";
-            // cout <<"system = " <<  system2 <<"s"<<endl;
-            real3+=real2;
-            user3+=user2;
-            system3+=system2;
-        //}
-        // real3/=5;
-        // user3/=5;
-        // system3/=5;
+            real3 = solve(real,'e');
+            user3 = solve(user,'u');
+            system3 = solve(system,'s');
+        
         cout << fixed << setprecision(2) << "real = " <<real3 <<" user = " << user3 <<" system = " <<  system3 <<"\n\n";
         myfile << real3 << "," << user3 <<"," << system3<< endl;
         j++;

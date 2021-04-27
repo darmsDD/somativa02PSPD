@@ -57,7 +57,7 @@ void imprimeVar(string temp){
 
 
 void getFileNames(){
-    string path  = "../somativa02/pspd-2020.2/input";
+    string path  = "../pspd-2020.2/input";
    
     for (const auto & file : directory_iterator(path)){
         string a =  file.path();  
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]){
         cout <<"Comando = " << comando2 << endl;
         
         // monta a string pro comando diff
-        char arg2[200] = "../somativa02/pspd-2020.2/output/";
+        char arg2[200] = "../pspd-2020.2/output/";
         char diff[200] = "diff out ";
         char arquivoDiff[] = " > diff/0";
         if(k>9 && a=='0'){

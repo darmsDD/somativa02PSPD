@@ -20,7 +20,7 @@ void full();
 void flip();
 void calculate();
 
-int32_t main()
+int main()
 {
     scanf("%d %d", &NVariable, &NClause);
 
@@ -50,6 +50,7 @@ int32_t main()
         }
         calculate();
     }
+    return 0;
 }
 
 void full()
@@ -120,14 +121,14 @@ void flip()
         if (NTrueVariables[i] == 0 and fausesClauses.find(i) == fausesClauses.end())
         {
             fausesClauses.insert(i);
-            for (auto x : clauses[i])
-                falssesVariables[x.first] += x.second;
+            for (auto y : clauses[i])
+                falssesVariables[y.first] += y.second;
         }
         if (NTrueVariables[i] != 0 and fausesClauses.find(i) != fausesClauses.end())
         {
             fausesClauses.erase(i);
-            for (auto x : clauses[i])
-                falssesVariables[x.first] -= x.second;
+            for (auto y : clauses[i])
+                falssesVariables[y.first] -= y.second;
         }
     }
 }

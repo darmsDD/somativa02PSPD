@@ -3,6 +3,7 @@
 #include <chrono>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <algorithm>
 #include <stack>
 #include <thread>
@@ -14,10 +15,11 @@ using namespace std;
 
 using ii = pair<int, int>;
 int v, c;
+sem_t c_falses_mtx, v_falses_mtx;
 vector<vector<int>> cl;
 vector<int> values;
-vector<int> tc_falses[N_THREADS];
-map<int, int> tv_falses[N_THREADS];
+vector<int> c_falses;
+unordered_map<int, int> v_falses;
 pthread_t threads[N_THREADS];
 int args[N_THREADS];
 void read_input();
@@ -28,6 +30,8 @@ void* thread_handler(void* _);
 
 int main()
 {
+    sem_init(&c_falses_mtx, 0, 1);
+    sem_init(&v_falses_mtx, 0, 1);
     ios::sync_with_stdio(0);
     cin.tie(0);
     read_input();
@@ -72,11 +76,16 @@ void process_flip(){
     else{
         values[x] = 0;
     }
-}
+}   
 
-void * thread_handler(void* arg){
+
+void* thread_handler(void* arg){
     int k = *((int *)arg);
-    for(int i=k; i<(int)cl.size(); i+=N_THREADS)
+    int blk = (int)cl.size()/N_THREADS;
+    int l = k*blk;
+    int r = (k == N_THREADS-1) ? cl.size() : l+blk;
+    
+    for(int i=l; i<r; ++i)
     {
         bool res = false;
         stack<int> q;
@@ -91,11 +100,15 @@ void * thread_handler(void* arg){
         }
         if (!res)
         {
-            tc_falses[k].push_back(i);
-            
+            sem_wait(&c_falses_mtx);
+            c_falses.push_back(i);
+            sem_post(&c_falses_mtx);
+
             while (not q.empty())
             {
-                ++tv_falses[k][q.top()];
+                sem_wait(&v_falses_mtx);
+                ++v_falses[q.top()];
+                sem_post(&v_falses_mtx);
                 q.pop();
             }
         }
@@ -104,20 +117,15 @@ void * thread_handler(void* arg){
 }
 void calculate()
 {
-    vector<int> c_falses;
-    map<int, int> v_falses;
+    v_falses.clear();
+    c_falses.clear();
+    
     for(int i=0; i<N_THREADS; i++){
         args[i] = i;
         pthread_create(&threads[i],NULL,thread_handler, (void *)&args[i]);
     }
     for(int i=0;i<N_THREADS;i++){
         pthread_join(threads[i],NULL);
-    }
-    for(int i=0; i<N_THREADS; ++i){
-        for(auto &x:tc_falses[i]) c_falses.push_back(x);
-        for(auto &x:tv_falses[i]) v_falses[x.first] += x.second;
-        tv_falses[i].clear();
-        tc_falses[i].clear();
     }
     vector<ii> lits;
     for (auto x : v_falses)

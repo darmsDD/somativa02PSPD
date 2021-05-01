@@ -1,144 +1,173 @@
-#include <iostream>
-#include <thread>
-#include <chrono>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <stack>
-#include <set>
-#include <unordered_map>
+#include<bits/stdc++.h>
+
 using namespace std;
-#define ff first
-#define ss second
 
-using ii = pair<int, int>;
-int v, c;
-vector<set<int>> clauses;
-vector<int> trueInClause;
-set<int> falsesClause;
-unordered_map<int, int> falsesVariable;
-unordered_map<int, bool> value;
-void read_input();
-void process_full();
-void process_flip();
-void calculate();
 
-int32_t main()
-{
-    read_input();
-    string command;
-    while(cin >> command){
-        if(command == "full"){
-            process_full();
+long long n_variables,n_clauses;
+const long int MAX {1100000};
+
+void full(vector<vector<long int>> & clauses,bitset<MAX> & variable, vector<long int> & clause_value, map<long int,long int> &false_variables,set<long int>&false_clauses);
+void resultado(map<long int,long int> &false_variables,set<long int>&false_clauses);
+void flip(vector<vector<long int>> & clauses,map<long int,vector<long int>> & variable_in_clauses,bitset<MAX> &variable,map<long int,long int> &false_variables,set<long int>&false_clauses,vector<long int> & clause_value);
+
+struct comp {
+    bool operator() ( const pair<long int,long int> &a,  const pair<long int,long int> &b) const{
+        if (a.second != b.second) {
+            return a.second > b.second;
         }
-        else{
-            process_flip();
-        }
-        calculate();
+        return abs(a.first) > abs(b.first);
     }
+};
+
+
+
+
+int main(){
+
+    
+    cin >> n_variables >> n_clauses;
+   
+    map<long int,vector<long int>>variable_in_clauses;
+    vector<vector<long int>>clauses;
+    bitset<MAX> variable;
+    for(long int i=0;i<n_clauses;i++){
+        long int t;
+        vector<long int>temp_clause;
+        while(cin >> t,t!=0){
+            temp_clause.push_back(t);
+            variable_in_clauses[t].push_back(i);
+        }
+        clauses.push_back(temp_clause);
+    }
+    // cout << "aaaaaaaaaaaaaaaaaaaaa" << endl;
+    // for(int i=0;i<clauses.size();i++){
+    //     for(int j=0;j<clauses[i].size();j++){
+    //         cout << clauses[i][j] << " ";
+    //     }
+    //     cout << 0 << endl;
+    // }
+    // return 0;
+    vector<long int>clause_value(n_clauses+1,0);
+    vector<long int>temp(n_clauses+1,0);
+    map<long int,long int> false_variables;
+    set<long int>false_clauses;
+    string s;
+    while(cin >> s){
+        if(s=="full"){
+            variable.reset();
+            clause_value =  temp;
+            false_variables.clear();
+            false_clauses.clear();
+            full(clauses,variable,clause_value,false_variables,false_clauses); 
+        } else if(s=="flip"){
+            flip(clauses,variable_in_clauses,variable,false_variables,false_clauses,clause_value);
+        }
+        resultado(false_variables,false_clauses);
+    }
+
+
+    return 0;
+
 }
 
-void read_input()
-{
-    cin >> v >> c;
-    clauses = vector<set<int>>(c);
-    trueInClause = vector<int>(c);
-    for(int i=0; i<c; ++i){
-        int x;
-        while (cin >> x, x != 0)
-            clauses[i].insert(x);
+void full(vector<vector<long int>> & clauses,bitset<MAX> & variable, vector<long int> & clause_value,map<long int,long int> &false_variables,set<long int>&false_clauses){
+
+    for(long int i=0;i<n_variables;i++){
+        long int t;
+        cin >> t;
+        if(t<0){
+            t = abs(t);
+            variable[t]=0;
+        } else{
+            variable[t]=1;
+        }
     }
+
+    for(size_t i=0;i<clauses.size();i++){
+        for(size_t j=0;j<clauses[i].size();j++){
+            long int t = clauses[i][j];
+            if((t<0 && variable[abs(t)]==0) ||(t>0 && variable[t]==1) ){
+                clause_value[i]+=1;
+            }
+        }
+        if(clause_value[i]==0){
+            false_clauses.insert(i);
+            for(size_t j=0;j<clauses[i].size();j++){
+                long int t = clauses[i][j];
+                false_variables[t]++;
+            }
+           
+        }
+    }
+    
+
 }
 
-void process_full(){
-    for(int i=0; i<v; ++i){
-        int x;
-        cin >> x;
-        value[x] = true;
-        value[-x] = false;
-    }
-
-    falsesVariable.clear();
-    falsesClause.clear();
-    for(int i=0; i<c; ++i){
-        trueInClause[i] = 0;
-        for(auto variable:clauses[i]){
-            if(value[variable]){
-                trueInClause[i]++;
+void clauses_new_values(vector<vector<long int>> & clauses,vector<long int> & variable_in_clause,bool positive,vector<long int> & clause_value,map<long int,long int> &false_variables,set<long int>&false_clauses){
+    long int k = positive?1:-1;
+    for(auto & p: variable_in_clause){
+       
+        if(clause_value[p]==0 && k==1){
+            for(size_t i=0;i<clauses[p].size();i++){
+                long int u = clauses[p][i];
+                false_variables[u]--;
+                if(false_variables[u]<=0){
+                    false_variables.erase(u);
+                }
             }
-        }
-        if(trueInClause[i] == 0){
-            falsesClause.insert(i);
-            for(auto variable:clauses[i]) 
-                falsesVariable[variable]++; 
-        }
-    }
-}
-
-void process_flip(){
-    int x;
-    cin >> x;
-    value[x] = !value[x];
-    value[-x] = !value[-x];
-
-    for(int i=0; i<c; ++i){
-        int lastValue = trueInClause[i];
-
-        auto it1 = clauses[i].find(x);
-        auto it2 = clauses[i].find(-x);
-
-        if(it1 != clauses[i].end()){
-            if(value[x] == false) {
-                trueInClause[i]--;
+            false_clauses.erase(p);
+        } else if(clause_value[p]==1 && k==-1){
+            for(size_t i=0;i<clauses[p].size();i++){
+                long int u = clauses[p][i];
+                false_variables[u]++;
             }
-            else{
-                trueInClause[i]++;
-            }
+            false_clauses.insert(p);
         }
-        else if(it2 != clauses[i].end()){
-            if(value[-x] == false) {
-                trueInClause[i]--;
-            }
-            else{
-                trueInClause[i]++;
-            }
-        }
-        //valgrind
-        if(lastValue!=0 and trueInClause[i] == 0){
-            falsesClause.insert(i);
-            for(auto variable:clauses[i]) 
-                falsesVariable[variable]++; 
-        }
-        if(lastValue==0 and trueInClause[i] != 0){
-            falsesClause.erase(i);
-            for(auto variable:clauses[i])
-                falsesVariable[variable]--;
-        }
+        
+        clause_value[p]+=k;
+        
     }
-}
+    
 
-void calculate()
-{
-    vector<ii> lits;
-    for(auto x:falsesVariable){
-        if(x.ss>0) lits.emplace_back(x.ss, x.ff);
-    }
-    sort(lits.begin(), lits.end(), [](ii a, ii b){
-        return a.ff == b.ff ? abs(a.ss) > abs(b.ss) : a.ff > b.ff;
-    });
-    if(falsesClause.empty()){
-        cout << "SAT\n";
-    }
-    else{
-        cout << "[" << falsesClause.size() << " clausulas falsas]"; 
-        for(auto x:falsesClause)
-            cout << ' ' << x;
-        cout << '\n';
-        cout << "[lits]";
-        for(auto x:lits)
-                cout << ' ' << x.ss;
-        cout << '\n';
-    }
 }
 
 
+
+void flip (vector<vector<long int>> & clauses,map<long int,vector<long int>> & variable_in_clauses, bitset<MAX> &variable,map<long int,long int> &false_variables,set<long int>&false_clauses,vector<long int> & clause_value){
+    long int t;
+    cin >> t;
+    long int k = abs(t);
+    variable[k]= variable[k]?0:1;
+    
+    if(variable[k] == 0){
+        clauses_new_values(clauses, variable_in_clauses[k],false,clause_value,false_variables,false_clauses);
+        clauses_new_values(clauses, variable_in_clauses[-k],true,clause_value,false_variables,false_clauses);
+    } else{
+        clauses_new_values(clauses,variable_in_clauses[-k],false,clause_value,false_variables,false_clauses);
+        clauses_new_values(clauses, variable_in_clauses[k],true,clause_value,false_variables,false_clauses);
+    }
+    
+}
+
+
+
+void resultado(map<long int,long int> &false_variables,set<long int>&false_clauses){
+
+    if(false_clauses.empty()){
+        cout << "SAT" << endl;
+        return;
+    }
+
+    cout << "["<<false_clauses.size()<<" clausulas falsas]";
+    for(auto const &p: false_clauses){
+        cout <<' ' << p;
+    }
+    cout << endl;
+    set<pair<long int,long int>,comp> false_variables2(false_variables.begin(),false_variables.end());
+    cout << "[lits]";
+    for(auto const &p: false_variables2){
+        cout << ' ' << p.first;
+    }
+    cout << endl;
+
+}

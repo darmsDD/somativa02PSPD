@@ -1,152 +1,161 @@
+#include <stdio.h>
+#include <string.h>
 #include <iostream>
-#include <thread>
-#include <chrono>
 #include <vector>
-#include <map>
 #include <algorithm>
-#include <stack>
-#include <thread>
-#include <mutex>
-#include <semaphore.h>
+#include <unordered_set>
+#include <unordered_map>
+#include <map>
+#include <set>
+using namespace std;
 
-#define N_THREADS 4
-using namespace std; 
+int NVariable, NClause;
+vector<unordered_map<int, int>> clauses;
+vector<bool> valueOf;
+vector<int> NTrueVariables;
+set<int> fausesClauses;
+unordered_map<int, int> falssesVariables;
 
-using ii = pair<int, int>;
-int v, c;
-sem_t c_falses_mtx, v_falses_mtx;
-vector<vector<int>> cl;
-vector<int> values;
-vector<int> tc_falses[N_THREADS];
-vector<int> c_falses;
-map<int, int> v_falses;
-map<int, int> tv_falses[N_THREADS];
-pthread_t threads[N_THREADS];
-int args[N_THREADS];
-void read_input();
-void process_full();
-void process_flip();
+void full();
+void flip();
 void calculate();
-void* thread_handler(void* _);
 
-int main()
+int32_t main()
 {
-    sem_init(&c_falses_mtx, 0, 1);
-    sem_init(&v_falses_mtx, 0, 1);
-    ios::sync_with_stdio(0);
-    cin.tie(0);
-    read_input();
-    string command;
-    while(cin >> command){
-        if(command == "full"){
-            process_full();
+    scanf("%d %d", &NVariable, &NClause);
+
+    for (int i = 0; i < NClause; ++i)
+    {
+        int x;
+        unordered_map<int, int> mp;
+        while (true)
+        {
+            scanf("%d", &x);
+            if (x == 0)
+                break;
+            ++mp[x];
         }
-        else{
-            process_flip();
+        clauses.push_back(mp);
+    }
+    char command[5];
+    while (scanf("%s", command) != EOF)
+    {
+        if (strcmp(command, "full") == 0)
+        {
+            full();
+        }
+        if (strcmp(command, "flip") == 0)
+        {
+            flip();
         }
         calculate();
     }
 }
 
-void read_input()
+void full()
 {
-    cin >> v >> c;
-    values = vector<int>(v+1);
-    cl = vector<vector<int>>(c);
-    for (auto &vs : cl)
+    fausesClauses.clear();
+    falssesVariables.clear();
+    valueOf.assign(NVariable, false);
+    NTrueVariables.assign(NClause, 0);
+
+    for (int i = 0; i < NVariable; ++i)
     {
         int x;
-        while (cin >> x, x != 0)
-            vs.push_back(x);
+        scanf("%d", &x);
+        if (x > 0)
+            valueOf[abs(x)] = true;
+        else
+            valueOf[abs(x)] = false;
+    }
+    for (int i = 0; i < NClause; ++i)
+    {
+        for (auto x : clauses[i])
+        {
+            int variable = x.first;
+            if (variable > 0 and valueOf[abs(variable)] == true)
+                NTrueVariables[i] += x.second;
+
+            if (variable < 0 and valueOf[abs(variable)] == false)
+                NTrueVariables[i] += x.second;
+        }
+        if (not clauses[i].empty() and NTrueVariables[i] == 0)
+        {
+            fausesClauses.insert(i);
+            for (auto x : clauses[i])
+                falssesVariables[x.first] += x.second;
+        }
     }
 }
 
-void process_full(){
-    for(int i=1; i<=v; ++i){
-        int x;
-        cin >> x;
-        values[abs(x)] = x<0 ? 0 : 1;
-    }
-}
-void process_flip(){
+void flip()
+{
     int x;
-    cin >> x;
-    if(values[x] == 0){
-        values[x] = 1;
-    }
-    else{
-        values[x] = 0;
-    }
-}   
+    scanf("%d", &x);
+    valueOf[x] = !valueOf[x];
 
-
-void * thread_handler(void* arg){
-    int k = *((int *)arg);
-    int blk = (int)cl.size()/N_THREADS;
-    int l = k*blk;
-    int r = (k == N_THREADS-1) ? cl.size() : l+blk;
-    
-    for(int i=l; i<r; ++i)
+    for (int i = 0; i < NClause; ++i)
     {
-        bool res = false;
-        stack<int> q;
-        for (auto &x : cl[i])
-        {
-            if (values[abs(x)] == 0 and x < 0)
-                res = true;
-            else if (values[abs(x)] != 0 and x > 0)
-                res = true;
-            else
-                q.push(x);
-        }
-        if (!res)
-        {
-            sem_wait(&c_falses_mtx);
-            c_falses.push_back(i);
-            sem_post(&c_falses_mtx);
+        bool findPositive = clauses[i].find(x) != clauses[i].end();
+        bool findNegative = clauses[i].find(-x) != clauses[i].end();
 
-            while (not q.empty())
-            {
-                sem_wait(&v_falses_mtx);
-                ++v_falses[q.top()];
-                sem_post(&v_falses_mtx);
-                q.pop();
-            }
+        if (clauses[i].empty() or (not findPositive and not findNegative))
+            continue;
+
+        if (findPositive)
+        {
+            if (valueOf[x] == true)
+                NTrueVariables[i] += clauses[i][x];
+            else
+                NTrueVariables[i] -= clauses[i][x];
+        }
+        if (findNegative)
+        {
+            if (valueOf[x] == false)
+                NTrueVariables[i] += clauses[i][-x];
+            else
+                NTrueVariables[i] -= clauses[i][-x];
+        }
+
+        if (NTrueVariables[i] == 0 and fausesClauses.find(i) == fausesClauses.end())
+        {
+            fausesClauses.insert(i);
+            for (auto x : clauses[i])
+                falssesVariables[x.first] += x.second;
+        }
+        if (NTrueVariables[i] != 0 and fausesClauses.find(i) != fausesClauses.end())
+        {
+            fausesClauses.erase(i);
+            for (auto x : clauses[i])
+                falssesVariables[x.first] -= x.second;
         }
     }
-    return NULL;
 }
+
 void calculate()
 {
-    for(int i=0; i<N_THREADS; i++){
-        args[i] = i;
-        pthread_create(&threads[i],NULL,thread_handler, (void *)&args[i]);
-    }
-    for(int i=0;i<N_THREADS;i++){
-        pthread_join(threads[i],NULL);
-    }
-    vector<ii> lits;
-    for (auto x : v_falses)
+    if (fausesClauses.empty())
     {
-        lits.emplace_back(x.second, x.first);
+        printf("SAT\n");
+        return;
     }
-    sort(lits.begin(), lits.end(), [](ii a, ii b) {
-        return a.first == b.first ? abs(a.second) > abs(b.second) : a.first > b.first;
+    /* Printing falses clauses */
+    printf("[%d clausulas falsas]", (int)fausesClauses.size());
+    for (auto i : fausesClauses)
+        printf(" %d", i);
+    printf("\n");
+
+    vector<pair<int, int>> lits;
+    for (auto x : falssesVariables)
+    {
+        if (x.second > 0)
+            lits.emplace_back(x.first, x.second);
+    }
+    sort(lits.begin(), lits.end(), [](pair<int, int> a, pair<int, int> b) {
+        return a.second == b.second ? abs(a.first) > abs(b.first) : a.second > b.second;
     });
-    sort(c_falses.begin(), c_falses.end());
-    if (c_falses.empty())
-    {
-        cout << "SAT\n";
-    }
-    else
-    {
-        cout << "[" << c_falses.size() << " clausulas falsas]";
-        for (auto &x : c_falses)
-            cout << ' ' << x;
-        cout << '\n';
-        cout << "[lits]";
-        for (auto x : lits)
-            cout << ' ' << x.second;
-        cout << '\n';
-    }
+    printf("[lits]");
+    for (auto x : lits)
+        printf(" %d", x.first);
+    printf("\n");
 }

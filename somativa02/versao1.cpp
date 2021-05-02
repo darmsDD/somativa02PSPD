@@ -28,6 +28,7 @@ int main()
         }
         calculate();
     }
+    return 0;
 }
 
 void read_input()

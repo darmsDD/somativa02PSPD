@@ -39,14 +39,7 @@ int main(){
         }
         clauses.push_back(temp_clause);
     }
-    // cout << "aaaaaaaaaaaaaaaaaaaaa" << endl;
-    // for(int i=0;i<clauses.size();i++){
-    //     for(int j=0;j<clauses[i].size();j++){
-    //         cout << clauses[i][j] << " ";
-    //     }
-    //     cout << 0 << endl;
-    // }
-    // return 0;
+
     vector<long int>clause_value(n_clauses+1,0);
     vector<long int>temp(n_clauses+1,0);
     map<long int,long int> false_variables;
@@ -55,7 +48,7 @@ int main(){
     while(cin >> s){
         if(s=="full"){
             variable.reset();
-            clause_value =  temp;
+            clause_value.assign(n_clauses+1, 0);
             false_variables.clear();
             false_clauses.clear();
             full(clauses,variable,clause_value,false_variables,false_clauses); 

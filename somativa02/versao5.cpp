@@ -1,47 +1,38 @@
 #include <bits/stdc++.h>
 #include <semaphore.h>
 #define N_THREADS 4
+#define MAX_V 134217730
 
 using namespace std;
 
-long long n_variables, n_clauses;
-const long int MAX{1100000};
+int n_variables, n_clauses;
+sem_t sem_clause, sem_variable;
 
-sem_t semaforo;
-
-map<long int, vector<long int>> variable_in_clauses;
-vector<vector<long int>> clauses;
-bitset<MAX> variable;
-vector<long int> clause_value;
-map<long int, long int> false_variables;
-set<long int> false_clauses;
+vector<vector<int>> clauses;
+vector<bool> value_of;
+vector<int> true_in_clause;
+set<int> false_clalses;
+unordered_map<int, int> false_variables;
+unordered_map<int, vector<int>> variable_in_clauses;
+vector<pair<int, int>> variable_to_process;
 
 void full();
-void resultado();
 void flip();
-
-struct comp
-{
-    bool operator()(const pair<long int, long int> &a, const pair<long int, long int> &b) const
-    {
-        if (a.second != b.second)
-        {
-            return a.second > b.second;
-        }
-        return abs(a.first) > abs(b.first);
-    }
-};
+void resultado();
 
 int main()
 {
-    sem_init(&semaforo, 0, 1);
-    cin >> n_variables >> n_clauses;
+    sem_init(&sem_clause, 0, 1);
+    sem_init(&sem_variable, 0, 1);
 
-    clause_value.assign(n_clauses + 1, 0);
-    for (long int i = 0; i < n_clauses; i++)
+    cin >> n_variables >> n_clauses;
+    value_of.assign(n_variables + 1, 0);
+    true_in_clause.assign(n_clauses, -1);
+
+    for (int i = 0; i < n_clauses; i++)
     {
         long int t;
-        vector<long int> temp_clause;
+        vector<int> temp_clause;
         while (cin >> t, t != 0)
         {
             temp_clause.push_back(t);
@@ -55,10 +46,6 @@ int main()
     {
         if (s == "full")
         {
-            variable.reset();
-            fill(clause_value.begin(), clause_value.end(), 0);
-            false_variables.clear();
-            false_clauses.clear();
             full();
         }
         else if (s == "flip")
@@ -67,58 +54,161 @@ int main()
         }
         resultado();
     }
-
     return 0;
 }
 
-void *full_thread_handler(void *arg)
+struct thread_arg_t
 {
-    int index = *((int *)arg);
-    int blk = (int)clauses.size() / N_THREADS;
-    int l = index * blk;
-    int r = (index == N_THREADS - 1) ? clauses.size() : l + blk;
+    int index;
+    int variable;
+};
 
+void *process_full(void *arg)
+{
+    int t_index = *((int *)arg);
+    int blk = (int)clauses.size() / N_THREADS;
+    int l = t_index * blk;
+    int r = (t_index == N_THREADS - 1) ? clauses.size() : l + blk;
+    if (blk == 0)
+    {
+        if ((t_index == N_THREADS - 1))
+        {
+            l = 0;
+            r = clauses.size();
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+
+    unordered_map<int, int> false_variables_to_add;
+    vector<int> false_clauses_to_insert;
+    vector<int> false_clauses_to_erase;
     for (int i = l; i < r; i++)
     {
+        int last_true_value = true_in_clause[i];
+        true_in_clause[i] = 0;
         for (size_t j = 0; j < clauses[i].size(); j++)
         {
             long int t = clauses[i][j];
-            if ((t < 0 && variable[abs(t)] == 0) || (t > 0 && variable[t] == 1))
+            if ((t < 0 && value_of[abs(t)] == 0) || (t > 0 && value_of[t] == 1))
             {
-                clause_value[i] += 1;
+                true_in_clause[i] += 1;
             }
         }
-        if (clause_value[i] == 0)
+        if (last_true_value != true_in_clause[i] and true_in_clause[i] == 0)
         {
-            sem_wait(&semaforo);
-            false_clauses.insert(i);
-            for (size_t j = 0; j < clauses[i].size(); j++)
+            false_clauses_to_insert.push_back(i);
+
+            for (auto t : clauses[i])
             {
-                long int t = clauses[i][j];
-                false_variables[t]++;
+                false_variables_to_add[t]++;
             }
-            sem_post(&semaforo);
+        }
+        if (last_true_value == 0 and true_in_clause[i] != 0)
+        {
+            false_clauses_to_erase.push_back(i);
+            for (auto t : clauses[i])
+            {
+                false_variables_to_add[t]--;
+            }
         }
     }
+    sem_wait(&sem_variable);
+    for (auto x : false_variables_to_add)
+    {
+        false_variables[x.first] += x.second;
+        if (false_variables[x.first] == 0)
+            false_variables.erase(x.first);
+    }
+    sem_post(&sem_variable);
+    sem_wait(&sem_clause);
+    for (auto &x : false_clauses_to_insert)
+        false_clalses.insert(x);
+    for (auto &x : false_clauses_to_erase)
+        false_clalses.erase(x);
+    sem_post(&sem_clause);
+    return NULL;
+}
+
+void *process_flip(void *arg)
+{
+    int t_index = *((int *)arg);
+    int blk = (int)variable_to_process.size() / N_THREADS;
+    int l = t_index * blk;
+    int r = (t_index == N_THREADS - 1) ? variable_to_process.size() : l + blk;
+    if (blk == 0)
+    {
+        if ((t_index == N_THREADS - 1))
+        {
+            l = 0;
+            r = variable_to_process.size();
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+
+    unordered_map<int, int> false_variables_to_add;
+    vector<int> false_clauses_to_insert;
+    vector<int> false_clauses_to_erase;
+    for (int _i = l; _i < r; _i++)
+    {
+        int i = variable_to_process[_i].first;
+        int t = variable_to_process[_i].second;
+        int last_true_value = true_in_clause[i];
+        if ((t < 0 && value_of[abs(t)] == 0) || (t > 0 && value_of[t] == 1))
+            true_in_clause[i] += 1;
+        else
+            true_in_clause[i] -= 1;
+
+        if (last_true_value != true_in_clause[i] and true_in_clause[i] == 0)
+        {
+            false_clauses_to_insert.push_back(i);
+
+            for (auto t : clauses[i])
+            {
+                false_variables_to_add[t]++;
+            }
+        }
+        if (last_true_value == 0 and true_in_clause[i] != 0)
+        {
+            false_clauses_to_erase.push_back(i);
+            for (auto t : clauses[i])
+            {
+                false_variables_to_add[t]--;
+            }
+        }
+    }
+    sem_wait(&sem_variable);
+    for (auto x : false_variables_to_add)
+    {
+        false_variables[x.first] += x.second;
+        if (false_variables[x.first] == 0)
+            false_variables.erase(x.first);
+    }
+    sem_post(&sem_variable);
+    sem_wait(&sem_clause);
+    for (auto &x : false_clauses_to_insert)
+        false_clalses.insert(x);
+    for (auto &x : false_clauses_to_erase)
+        false_clalses.erase(x);
+    sem_post(&sem_clause);
     return NULL;
 }
 
 void full()
 {
-
-    for (long int i = 0; i < n_variables; i++)
+    for (int i = 0; i < n_variables; i++)
     {
-        long int t;
+        int t;
         cin >> t;
         if (t < 0)
-        {
-            t = abs(t);
-            variable[t] = 0;
-        }
+            value_of[abs(t)] = 0;
         else
-        {
-            variable[t] = 1;
-        }
+            value_of[abs(t)] = 1;
     }
 
     pthread_t threads[N_THREADS];
@@ -127,44 +217,11 @@ void full()
     for (int i = 0; i < N_THREADS; i++)
     {
         args[i] = i;
-        pthread_create(&threads[i], NULL, full_thread_handler, (void *)&args[i]);
+        pthread_create(&threads[i], NULL, process_full, (void *)&args[i]);
     }
     for (int i = 0; i < N_THREADS; i++)
     {
         pthread_join(threads[i], NULL);
-    }
-}
-
-void clauses_new_values(vector<long int> &variable_in_clause, bool positive)
-{
-    long int k = positive ? 1 : -1;
-    for (auto &p : variable_in_clause)
-    {
-
-        if (clause_value[p] == 0 && k == 1)
-        {
-            for (size_t i = 0; i < clauses[p].size(); i++)
-            {
-                long int u = clauses[p][i];
-                false_variables[u]--;
-                if (false_variables[u] <= 0)
-                {
-                    false_variables.erase(u);
-                }
-            }
-            false_clauses.erase(p);
-        }
-        else if (clause_value[p] == 1 && k == -1)
-        {
-            for (size_t i = 0; i < clauses[p].size(); i++)
-            {
-                long int u = clauses[p][i];
-                false_variables[u]++;
-            }
-            false_clauses.insert(p);
-        }
-
-        clause_value[p] += k;
     }
 }
 
@@ -173,40 +230,61 @@ void flip()
     long int t;
     cin >> t;
     long int k = abs(t);
-    variable[k] = variable[k] ? 0 : 1;
+    value_of[k] = value_of[k] ? 0 : 1;
 
-    if (variable[k] == 0)
+    for (auto &c : variable_in_clauses[k])
+        variable_to_process.emplace_back(c, k);
+    for (auto &c : variable_in_clauses[-k])
+        variable_to_process.emplace_back(c, -k);
+
+    pthread_t threads[N_THREADS];
+    int args[N_THREADS];
+
+    for (int i = 0; i < N_THREADS; i++)
     {
-        clauses_new_values(variable_in_clauses[k], false);
-        clauses_new_values(variable_in_clauses[-k], true);
+        args[i] = i;
+        pthread_create(&threads[i], NULL, process_flip, (void *)&args[i]);
     }
-    else
+    for (int i = 0; i < N_THREADS; i++)
     {
-        clauses_new_values(variable_in_clauses[-k], false);
-        clauses_new_values(variable_in_clauses[k], true);
+        pthread_join(threads[i], NULL);
     }
+    variable_to_process.clear();
 }
 
 void resultado()
 {
-
-    if (false_clauses.empty())
+    if (false_clalses.empty())
     {
-        cout << "SAT" << endl;
+        cout << "SAT" << '\n';
         return;
     }
 
-    cout << "[" << false_clauses.size() << " clausulas falsas]";
-    for (auto const &p : false_clauses)
+    cout << "[" << false_clalses.size() << " clausulas falsas]";
+    for (auto const &p : false_clalses)
     {
         cout << ' ' << p;
     }
-    cout << endl;
-    set<pair<long int, long int>, comp> false_variables2(false_variables.begin(), false_variables.end());
+    cout << '\n';
+
+    vector<pair<long int, long int>> false_variables_sorted;
+    for (auto x:false_variables)
+    {
+            false_variables_sorted.push_back(x);
+    }
+    sort(false_variables_sorted.begin(), false_variables_sorted.end(),
+         [](const pair<long int, long int> &a, const pair<long int, long int> &b) {
+             if (a.second != b.second)
+             {
+                 return a.second > b.second;
+             }
+             return abs(a.first) > abs(b.first);
+         });
+
     cout << "[lits]";
-    for (auto const &p : false_variables2)
+    for (auto const &p : false_variables_sorted)
     {
         cout << ' ' << p.first;
     }
-    cout << endl;
+    cout << '\n';
 }

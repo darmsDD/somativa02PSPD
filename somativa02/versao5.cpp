@@ -57,12 +57,6 @@ int main()
     return 0;
 }
 
-struct thread_arg_t
-{
-    int index;
-    int variable;
-};
-
 void *process_full(void *arg)
 {
     int t_index = *((int *)arg);

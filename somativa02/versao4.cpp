@@ -48,7 +48,7 @@ int main(){
     while(cin >> s){
         if(s=="full"){
             variable.reset();
-            clause_value.assign(n_clauses+1, 0);
+            clause_value=temp;
             false_variables.clear();
             false_clauses.clear();
             full(clauses,variable,clause_value,false_variables,false_clauses); 

@@ -31,7 +31,7 @@ int main()
 
     for (int i = 0; i < n_clauses; i++)
     {
-        long int t;
+        int t;
         vector<int> temp_clause;
         while (cin >> t, t != 0)
         {
@@ -95,17 +95,17 @@ void *process_full(void *arg)
         {
             false_clauses_to_insert.push_back(i);
 
-            for (auto t : clauses[i])
+            for (auto x : clauses[i])
             {
-                false_variables_to_add[t]++;
+                false_variables_to_add[x]++;
             }
         }
         if (last_true_value == 0 and true_in_clause[i] != 0)
         {
             false_clauses_to_erase.push_back(i);
-            for (auto t : clauses[i])
+            for (auto x : clauses[i])
             {
-                false_variables_to_add[t]--;
+                false_variables_to_add[x]--;
             }
         }
     }
@@ -162,17 +162,17 @@ void *process_flip(void *arg)
         {
             false_clauses_to_insert.push_back(i);
 
-            for (auto t : clauses[i])
+            for (auto x : clauses[i])
             {
-                false_variables_to_add[t]++;
+                false_variables_to_add[x]++;
             }
         }
         if (last_true_value == 0 and true_in_clause[i] != 0)
         {
             false_clauses_to_erase.push_back(i);
-            for (auto t : clauses[i])
+            for (auto x : clauses[i])
             {
-                false_variables_to_add[t]--;
+                false_variables_to_add[x]--;
             }
         }
     }

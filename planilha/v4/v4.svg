@@ -144,17 +144,17 @@
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(327.87,471.30)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
-		<text><tspan font-family="Arial" >Quantidade de casos</tspan></text>
+		<text><tspan font-family="Arial" >Quantidade de casos de teste</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-	<g id="gnuplot_plot_1" ><title>Saida normal</title>
+	<g id="gnuplot_plot_1" ><title>Saída normal</title>
 <g fill="none" color="white" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(507.09,75.91)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
-		<text><tspan font-family="Arial" >Saida normal</tspan></text>
+		<text><tspan font-family="Arial" >Saída normal</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -163,10 +163,10 @@
 		L186.13,226.42 L202.59,179.51 L218.32,173.49 L230.97,156.18 L250.62,200.02 L253.99,203.33 L260.84,141.93 L293.24,144.39
 		L335.58,115.04 L343.81,182.95 L383.63,98.59 L432.16,158.63 L535.30,130.64  '/></g>
 	</g>
-	<g id="gnuplot_plot_2" ><title>Saida comentada</title>
+	<g id="gnuplot_plot_2" ><title>Saída comentada</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(507.09,93.91)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
-		<text><tspan font-family="Arial" >Saida comentada</tspan></text>
+		<text><tspan font-family="Arial" >Saída comentada</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
@@ -175,10 +175,10 @@
 		L186.13,355.48 L202.59,325.51 L218.32,323.55 L230.97,314.58 L250.62,351.30 L253.99,351.67 L260.84,313.97 L293.24,312.01
 		L335.58,303.78 L343.81,330.55 L383.63,297.27 L432.16,349.34 L535.30,332.02  '/></g>
 	</g>
-	<g id="gnuplot_plot_3" ><title>Saida para /dev/null</title>
+	<g id="gnuplot_plot_3" ><title>Saída /dev/null</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(507.09,111.91)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
-		<text><tspan font-family="Arial" >Saida para /dev/null</tspan></text>
+		<text><tspan font-family="Arial" >Saída /dev/null</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">

@@ -179,45 +179,45 @@
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(327.87,471.30)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
-		<text><tspan font-family="Arial" >Quantidade de casos</tspan></text>
+		<text><tspan font-family="Arial" >Quantidade de casos de teste</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-	<g id="gnuplot_plot_1" ><title>Saida padrão</title>
+	<g id="gnuplot_plot_1" ><title>Saída padrão</title>
 <g fill="none" color="white" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(507.09,75.91)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
-		<text><tspan font-family="Arial" >Saida padrão</tspan></text>
+	<g transform="translate(507.09,372.30)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+		<text><tspan font-family="Arial" >Saída padrão</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(148,   0, 211)'  d='M515.48,72.01 L558.04,72.01 M80.92,422.40 L80.93,422.40 L80.94,422.40 L81.08,422.40 L81.12,422.40 L81.23,422.20
+	<path stroke='rgb(148,   0, 211)'  d='M515.48,368.40 L558.04,368.40 M80.92,422.40 L80.93,422.40 L80.94,422.40 L81.08,422.40 L81.12,422.40 L81.23,422.20
 		L82.58,85.22 L83.60,103.51 L92.64,134.65 L109.54,406.66 L140.25,388.91 L151.14,169.68 L154.28,156.42 L182.63,169.22
 		L186.13,150.93 L202.59,92.79 L218.32,92.05 L230.97,83.82 L250.62,157.56 L253.99,153.41 L260.84,79.40 L293.24,80.07
 		L335.58,65.80 L343.81,196.01 L383.63,83.28 L432.16,119.65 L535.30,163.25  '/></g>
 	</g>
-	<g id="gnuplot_plot_2" ><title>Saida comentada</title>
+	<g id="gnuplot_plot_2" ><title>Saída comentada</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(507.09,93.91)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
-		<text><tspan font-family="Arial" >Saida comentada</tspan></text>
+	<g transform="translate(507.09,390.30)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+		<text><tspan font-family="Arial" >Saída comentada</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(  0, 158, 115)'  d='M515.48,90.01 L558.04,90.01 M80.92,422.40 L80.93,422.40 L80.94,422.40 L81.08,422.40 L81.12,422.40 L81.23,422.27
+	<path stroke='rgb(  0, 158, 115)'  d='M515.48,386.40 L558.04,386.40 M80.92,422.40 L80.93,422.40 L80.94,422.40 L81.08,422.40 L81.12,422.40 L81.23,422.27
 		L82.58,200.36 L83.60,173.64 L92.64,193.26 L109.54,410.68 L140.25,398.09 L151.14,243.43 L154.28,235.79 L182.63,237.47
 		L186.13,229.63 L202.59,166.20 L218.32,166.34 L230.97,170.02 L250.62,236.87 L253.99,232.24 L260.84,159.03 L293.24,156.76
 		L335.58,159.24 L343.81,259.37 L383.63,172.50 L432.16,189.18 L535.30,236.13  '/></g>
 	</g>
-	<g id="gnuplot_plot_3" ><title>Saida /dev/null</title>
+	<g id="gnuplot_plot_3" ><title>Saída /dev/null</title>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(507.09,111.91)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
-		<text><tspan font-family="Arial" >Saida /dev/null</tspan></text>
+	<g transform="translate(507.09,408.30)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+		<text><tspan font-family="Arial" >Saída /dev/null</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="3.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb( 86, 180, 233)'  d='M515.48,108.01 L558.04,108.01 M80.92,422.40 L80.93,422.40 L80.94,422.40 L81.08,422.40 L81.12,422.40 L81.23,422.20
+	<path stroke='rgb( 86, 180, 233)'  d='M515.48,404.40 L558.04,404.40 M80.92,422.40 L80.93,422.40 L80.94,422.40 L81.08,422.40 L81.12,422.40 L81.23,422.20
 		L82.58,153.81 L83.60,132.78 L92.64,156.29 L109.54,407.73 L140.25,390.85 L151.14,201.43 L154.28,190.85 L182.63,193.13
 		L186.13,183.48 L202.59,114.83 L218.32,113.49 L230.97,114.29 L250.62,188.64 L253.99,186.03 L260.84,102.84 L293.24,102.91
 		L335.58,97.88 L343.81,213.69 L383.63,110.41 L432.16,140.75 L535.30,188.91  '/></g>
@@ -232,7 +232,7 @@
 	<path stroke='black'  d='M80.92,54.01 L80.92,422.40 L574.82,422.40 L574.82,54.01 L80.92,54.01 Z  '/></g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 	<g transform="translate(327.87,30.91)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
-		<text><tspan font-family="Arial" >Versão 3</tspan></text>
+		<text><tspan font-family="Arial" >Memorização sem otimização</tspan></text>
 	</g>
 </g>
 <g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">

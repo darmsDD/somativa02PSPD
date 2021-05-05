@@ -10,7 +10,7 @@ sem_t sem_clause, sem_variable;
 vector<vector<int>> clauses;
 vector<bool> value_of;
 vector<int> true_in_clause;
-set<int> false_clalses;
+set<int> false_clauses;
 map<int, int> false_variables;
 map<int, vector<int>> variable_in_clauses;
 vector<pair<int, int>> variable_to_process;
@@ -30,12 +30,24 @@ int main()
 
     for (int i = 0; i < n_clauses; i++)
     {
-        int t;
+        /* Resolvendo literais repetidos e tautologia */
+        int x;
         vector<int> temp_clause;
-        while (cin >> t, t != 0)
+        set<int> st;
+        bool taut = false;
+        while (cin >> x, x != 0)
         {
-            temp_clause.push_back(t);
-            variable_in_clauses[t].push_back(i);
+            if (st.find(-x) != st.end())
+                taut = true;
+            st.insert(x);
+        }
+        if (!taut)
+        {
+            for (auto t : st)
+            {
+                temp_clause.push_back(t);
+                variable_in_clauses[t].push_back(i);
+            }
         }
         clauses.push_back(temp_clause);
     }
@@ -85,26 +97,31 @@ void *process_full(void *arg)
         for (size_t j = 0; j < clauses[i].size(); j++)
         {
             int t = clauses[i][j];
-            if ((t < 0 && value_of[abs(t)] == 0) || (t > 0 && value_of[t] == 1))
+            if ((t < 0 and value_of[abs(t)] == 0) or (t > 0 and value_of[t] == 1))
             {
                 true_in_clause[i] += 1;
             }
         }
-        if (last_true_value != true_in_clause[i] and true_in_clause[i] == 0)
+        if (true_in_clause[i] == 0)
         {
             false_clauses_to_insert.push_back(i);
-
-            for (auto x : clauses[i])
+            if (last_true_value != 0)
             {
-                false_variables_to_add[x]++;
+                for (auto x : clauses[i])
+                {
+                    ++false_variables_to_add[x];
+                }
             }
         }
-        if (last_true_value == 0 and true_in_clause[i] != 0)
+        else
         {
             false_clauses_to_erase.push_back(i);
-            for (auto x : clauses[i])
+            if (last_true_value == 0)
             {
-                false_variables_to_add[x]--;
+                for (auto x : clauses[i])
+                {
+                    --false_variables_to_add[x];
+                }
             }
         }
     }
@@ -118,9 +135,9 @@ void *process_full(void *arg)
     sem_post(&sem_variable);
     sem_wait(&sem_clause);
     for (auto &x : false_clauses_to_insert)
-        false_clalses.insert(x);
+        false_clauses.insert(x);
     for (auto &x : false_clauses_to_erase)
-        false_clalses.erase(x);
+        false_clauses.erase(x);
     sem_post(&sem_clause);
     return NULL;
 }
@@ -151,27 +168,33 @@ void *process_flip(void *arg)
     {
         int i = variable_to_process[_i].first;
         int t = variable_to_process[_i].second;
+
         int last_true_value = true_in_clause[i];
-        if ((t < 0 && value_of[abs(t)] == 0) || (t > 0 && value_of[t] == 1))
+        if ((t < 0 and value_of[abs(t)] == 0) or (t > 0 and value_of[abs(t)] == 1))
             true_in_clause[i] += 1;
         else
             true_in_clause[i] -= 1;
 
-        if (last_true_value != true_in_clause[i] and true_in_clause[i] == 0)
+        if (true_in_clause[i] == 0)
         {
             false_clauses_to_insert.push_back(i);
-
-            for (auto x : clauses[i])
+            if (last_true_value != 0)
             {
-                false_variables_to_add[x]++;
+                for (auto x : clauses[i])
+                {
+                    ++false_variables_to_add[x];
+                }
             }
         }
-        if (last_true_value == 0 and true_in_clause[i] != 0)
+        else
         {
             false_clauses_to_erase.push_back(i);
-            for (auto x : clauses[i])
+            if (last_true_value == 0)
             {
-                false_variables_to_add[x]--;
+                for (auto x : clauses[i])
+                {
+                    --false_variables_to_add[x];
+                }
             }
         }
     }
@@ -185,9 +208,9 @@ void *process_flip(void *arg)
     sem_post(&sem_variable);
     sem_wait(&sem_clause);
     for (auto &x : false_clauses_to_insert)
-        false_clalses.insert(x);
+        false_clauses.insert(x);
     for (auto &x : false_clauses_to_erase)
-        false_clalses.erase(x);
+        false_clauses.erase(x);
     sem_post(&sem_clause);
     return NULL;
 }
@@ -225,10 +248,17 @@ void flip()
     int k = abs(t);
     value_of[k] = value_of[k] ? 0 : 1;
 
+    set<int> st;
     for (auto &c : variable_in_clauses[k])
+    {
         variable_to_process.emplace_back(c, k);
+        st.insert(c);
+    }
     for (auto &c : variable_in_clauses[-k])
+    {
         variable_to_process.emplace_back(c, -k);
+        st.insert(c);
+    }
 
     pthread_t threads[N_THREADS];
     int args[N_THREADS];
@@ -247,21 +277,21 @@ void flip()
 
 void resultado()
 {
-    if (false_clalses.empty())
+    if (false_clauses.empty())
     {
         cout << "SAT" << '\n';
         return;
     }
 
-    cout << "[" << false_clalses.size() << " clausulas falsas]";
-    for (auto const &p : false_clalses)
+    cout << "[" << false_clauses.size() << " clausulas falsas]";
+    for (auto const &p : false_clauses)
     {
         cout << ' ' << p;
     }
     cout << '\n';
 
     vector<pair<int, int>> false_variables_sorted;
-    for (auto x:false_variables)
+    for (auto x : false_variables)
         false_variables_sorted.push_back(x);
 
     sort(false_variables_sorted.begin(), false_variables_sorted.end(),

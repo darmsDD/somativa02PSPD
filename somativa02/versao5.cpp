@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 #include <semaphore.h>
 #define N_THREADS 4
-#define MAX_V 134217730
 
 using namespace std;
 
@@ -12,8 +11,8 @@ vector<vector<int>> clauses;
 vector<bool> value_of;
 vector<int> true_in_clause;
 set<int> false_clalses;
-unordered_map<int, int> false_variables;
-unordered_map<int, vector<int>> variable_in_clauses;
+map<int, int> false_variables;
+map<int, vector<int>> variable_in_clauses;
 vector<pair<int, int>> variable_to_process;
 
 void full();
@@ -76,7 +75,7 @@ void *process_full(void *arg)
         }
     }
 
-    unordered_map<int, int> false_variables_to_add;
+    map<int, int> false_variables_to_add;
     vector<int> false_clauses_to_insert;
     vector<int> false_clauses_to_erase;
     for (int i = l; i < r; i++)
@@ -85,7 +84,7 @@ void *process_full(void *arg)
         true_in_clause[i] = 0;
         for (size_t j = 0; j < clauses[i].size(); j++)
         {
-            long int t = clauses[i][j];
+            int t = clauses[i][j];
             if ((t < 0 && value_of[abs(t)] == 0) || (t > 0 && value_of[t] == 1))
             {
                 true_in_clause[i] += 1;
@@ -145,7 +144,7 @@ void *process_flip(void *arg)
         }
     }
 
-    unordered_map<int, int> false_variables_to_add;
+    map<int, int> false_variables_to_add;
     vector<int> false_clauses_to_insert;
     vector<int> false_clauses_to_erase;
     for (int _i = l; _i < r; _i++)
@@ -221,9 +220,9 @@ void full()
 
 void flip()
 {
-    long int t;
+    int t;
     cin >> t;
-    long int k = abs(t);
+    int k = abs(t);
     value_of[k] = value_of[k] ? 0 : 1;
 
     for (auto &c : variable_in_clauses[k])
@@ -261,13 +260,12 @@ void resultado()
     }
     cout << '\n';
 
-    vector<pair<long int, long int>> false_variables_sorted;
+    vector<pair<int, int>> false_variables_sorted;
     for (auto x:false_variables)
-    {
-            false_variables_sorted.push_back(x);
-    }
+        false_variables_sorted.push_back(x);
+
     sort(false_variables_sorted.begin(), false_variables_sorted.end(),
-         [](const pair<long int, long int> &a, const pair<long int, long int> &b) {
+         [](const pair<int, int> &a, const pair<int, int> &b) {
              if (a.second != b.second)
              {
                  return a.second > b.second;
